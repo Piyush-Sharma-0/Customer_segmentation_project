@@ -1,69 +1,91 @@
-
 # Telco Customer Churn Prediction & Segmentation
 
-## Overview
-This project aims to analyze customer churn in a telecommunications company, build a predictive model to identify customers at risk of churning, and segment the customer base for targeted retention strategies. By understanding the factors driving churn and categorizing customers, the company can proactively reduce churn and optimize marketing efforts.
+## Executive Summary
+This project analyzes telecom customer churn, predicts which customers are most likely to leave, and segments the customer base into actionable personas for retention planning. The final solution uses a Random Forest classifier for churn prediction and K-Means clustering for customer segmentation.
+
+The project is designed to answer two business questions:
+- Which customers are most likely to churn?
+- How can the business group customers for more targeted retention actions?
 
 ## Dataset
-The analysis uses the `Telco_customer_churn.xlsx` dataset, which contains customer demographic information, services subscribed, monthly charges, total charges, tenure, and churn status. 
+- Source file: `Telco_customer_churn.xlsx`
+- Records: 7,043 customers
+- Raw features: 33 columns
 
-## Methodology
-The project follows a comprehensive methodology:
+The dataset includes customer demographics, contract details, subscribed services, monthly charges, total charges, and churn outcomes.
 
-1.  **Data Cleaning & Feature Engineering**:
-    *   'Total Charges' were converted to numeric, with `coerce` handling non-numeric values and `fillna(0)` for new customers (tenure 0).
-    *   Irrelevant identifier columns (`CustomerID`, `Count`, `Country`, `State`, `City`, `Zip Code`, `Lat Long`, `Latitude`, `Longitude`, `Churn Label`, `Churn Score`, `Churn Reason`, `CLTV`) were dropped.
-    *   Categorical features were one-hot encoded using `pd.get_dummies`.
+## Project Workflow
+1. Data loading and cleaning
+2. Exploratory data analysis
+3. Feature engineering with one-hot encoding
+4. Random Forest churn modeling
+5. K-Means customer segmentation
+6. Business interpretation and recommendations
 
-2.  **Exploratory Data Analysis (EDA)**:
-    *   Distributions of `Tenure Months`, `Monthly Charges`, `Contract`, `Internet Service`, and `Payment Method` were analyzed.
-    *   Relationships between these features and `Churn Label` were visualized using box plots, KDE plots, and count plots.
-    *   A correlation matrix for numerical features was generated to understand inter-variable relationships.
-    *   **Key EDA Insights**:
-        *   Customers with lower tenure and higher monthly charges show a higher propensity to churn.
-        *   Customers on month-to-month contracts have a significantly higher churn rate compared to those with one-year or two-year contracts.
-        *   `Fiber optic` internet service and `Electronic check` payment methods are associated with higher churn.
+## Final Selected Model
+- Model: `RandomForestClassifier`
+- Parameters:
+  - `n_estimators=300`
+  - `max_depth=10`
+  - `random_state=42`
+  - `class_weight='balanced'`
 
-3.  **Machine Learning Pipeline (Churn Prediction)**:
-    *   The target variable `Churn Value` was separated from features `X`.
-    *   Data was split into training and testing sets (`X_train`, `X_test`, `y_train`, `y_test`) using `train_test_split`.
-    *   **XGBoost Model with SMOTE and Hyperparameter Tuning**:
-        *   Class imbalance was addressed using `SMOTE` (Synthetic Minority Over-sampling Technique) on the training data.
-        *   An `XGBClassifier` was used with hyperparameter tuning via `GridSearchCV`.
-        *   The `scoring` metric for `GridSearchCV` was set to `'recall'` to prioritize the identification of churners.
-        *   Optimal parameters found were: `learning_rate=0.01`, `max_depth=4`, `n_estimators=300`, `scale_pos_weight=3`.
-    *   The final model achieves strong performance in identifying churners.
+This final model was preserved from the original project logic and used as the production-ready churn model.
 
-4.  **Customer Segmentation (K-Means)**:
-    *   A `segmentation_data` DataFrame was created using `Tenure Months`, `Monthly Charges`, `Total Charges`, and the `Churn Probability` derived from the trained XGBoost model.
-    *   The data was scaled using `StandardScaler`.
-    *   The Elbow Method was applied to determine the optimal number of clusters, which indicated `k=3`.
-    *   K-Means clustering was performed to group customers into segments.
-    *   Segments were mapped to business personas: 'Budget Loyal Customer', 'High Risk New Customer', and 'Loyal Premium Customer'.
-    *   Cluster characteristics were summarized, and segments were visualized based on 'Tenure Months' vs 'Churn Probability' and 'Monthly Charges' vs 'Churn Probability'.
+## Key Results
+### Model Performance
+| Metric | Value |
+|---|---:|
+| Accuracy | 78.28% |
+| Precision | 59.01% |
+| Recall | 74.75% |
+| F1 Score | 65.95% |
+| ROC-AUC | 0.8571 |
 
-## Key Findings & Business Insights
-*   **High Churn Risk for New Customers**: Customers in their early months of service (`Tenure Months` < 20) with high churn probability are a critical group to target.
-*   **Impact of Contract Type and Internet Service**: Month-to-month contracts and Fiber Optic internet are strong indicators of churn.
-*   **Predictive Power**: The optimized XGBoost model effectively identifies 91% of potential churners (recall score).
-*   **Actionable Segments**:
-    *   **High Risk New Customers**: Likely new customers with high churn probability and potentially high monthly charges. Requires early intervention and personalized onboarding.
-    *   **Budget Loyal Customers**: Lower monthly charges, lower churn probability, and longer tenure. Focus on retention through value-for-money offerings.
-    *   **Loyal Premium Customers**: Higher monthly charges, longer tenure, and moderate churn probability. Focus on premium service and upselling opportunities.
+### Segment Breakdown
+| Segment | Customers | Share |
+|---|---:|---:|
+| High Risk New Customer | 2,580 | 36.6% |
+| Budget Loyal Customer | 2,312 | 32.8% |
+| Loyal Premium Customer | 2,151 | 30.5% |
 
-## Results Summary
-*   **Model Recall**: 90.50% (Ability to correctly identify churners)
-*   **Model Accuracy**: 69.55% (Overall correctness of predictions)
+## Main Churn Drivers
+The model and EDA consistently point to these factors as the strongest churn signals:
+- Lower tenure
+- Higher monthly charges
+- Contract type, especially month-to-month plans
+- Internet service mix
+- Billing and payment behavior
 
-**Business Segmentation Breakdown**:
-*   High Risk New Customer: 2580 customers (36.6%)
-*   Budget Loyal Customer: 2312 customers (32.8%)
-*   Loyal Premium Customer: 2151 customers (30.5%)
+## Business Recommendations
+### High Risk New Customer
+- Deploy early-life retention campaigns in the first 3 to 6 months.
+- Strengthen onboarding, service education, and proactive support.
+- Use pricing reassurance or targeted bundles for high-charge customers.
 
-**Value Proposition**:
-The model effectively identifies 91% of potential churners, allowing the marketing team to target interventions before revenue loss occurs. The segmentation further refines this by distinguishing between 'High Risk' and 'Loyal' profiles, enabling tailored strategies.
+### Budget Loyal Customer
+- Maintain strong value perception with light-touch loyalty rewards.
+- Use renewal nudges and referral campaigns.
+- Cross-sell carefully without weakening affordability.
 
-## How to Run the Notebook
-1.  **Upload Data**: Ensure the `Telco_customer_churn.xlsx` file is uploaded to your Colab environment or the working directory.
-2.  **Install Libraries**: The notebook uses standard libraries. If any are missing, install them using `pip install <library_name>`.
-3.  **Run Cells Sequentially**: Execute all code cells in the notebook from top to bottom. The notebook is structured to flow logically through data loading, cleaning, EDA, model training, evaluation, and segmentation.
+### Loyal Premium Customer
+- Prioritize premium support and service quality communication.
+- Focus on high-value upsell bundles rather than broad discounting.
+- Watch closely for service issues because this segment carries higher revenue value.
+
+## Repository Files
+- [final_cbsot_customer_segmentation_clean.ipynb](./final_cbsot_customer_segmentation_clean.ipynb): final notebook deliverable
+- [final_cbsot_customer_segmentation.py](./final_cbsot_customer_segmentation.py): cleaned script version
+- [Telco_customer_churn.xlsx](./Telco_customer_churn.xlsx): dataset used in the analysis
+
+## How to Run
+1. Open `final_cbsot_customer_segmentation_clean.ipynb` in Jupyter or VS Code.
+2. Keep `Telco_customer_churn.xlsx` in the same project folder.
+3. Run the notebook from top to bottom.
+
+## Portfolio Value
+This project demonstrates:
+- End-to-end churn analytics
+- Applied machine learning for business prediction
+- Customer segmentation for strategy design
+- Communication of model outputs through executive-ready reporting
