@@ -117,7 +117,6 @@ The final churn probabilities are used in K-Means segmentation to create three b
 
 ## Repository Files
 - [Final_CBSOT_Customer_segmentation.ipynb](./Final_CBSOT_Customer_segmentation.ipynb): final notebook deliverable
-- [final_cbsot_customer_segmentation.py](./final_cbsot_customer_segmentation.py): synced script version
 - [churn_model_analysis.md](./churn_model_analysis.md): review and improvement roadmap
 - [Telco_customer_churn.xlsx](./Telco_customer_churn.xlsx): source dataset
 
